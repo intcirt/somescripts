@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Snake</title>
+
+	<style>
+		body{
+			margin: 0px;
+		}
+
+		#container{
+			background: #111;
+			box-shadow: 0px 0px 15px #444;
+			position: relative;
+			margin: 50px auto 0px auto;
+		}	
+
+		.cell{
+			position: absolute;
+		}
+
+		.sn_body, .sn_head{
+			box-shadow: 0px 0px 10px #090, inset 0px 0px 20px #090;
+		}
+
+		.sn_food{
+			box-shadow: 0px 0px 20px #c33, inset 0px 0px 20px #c33;
+			transition: 1s;
+		}
+	</style>
+
+</head>
+<body>
+	<div id="container"></div>
+	
+	<script>
+		container = document.getElementById('container')
+		let C_H_COUNT = 20, C_V_COUNT = 20,
+			C_WIDTH = 30, C_HEIGHT = 30
+		container.style.width = C_H_COUNT * C_WIDTH + 'px'
+		container.style.height = C_V_COUNT * C_HEIGHT + 'px'
+
+		dom_elems = []
+		for(let i = 0; i < C_H_COUNT; i++){
+			dom_elems[i] = []
+			for(let j = 0; j < C_V_COUNT; j++){
+				dom_elems[i][j] = document.createElement('div')
+				dom_elems[i][j].className = 'cell'
+				dom_elems[i][j].style.width = C_WIDTH + 'px'
+				dom_elems[i][j].style.height = C_HEIGHT + 'px'
+				dom_elems[i][j].style.left = j * C_WIDTH + 'px'
+				dom_elems[i][j].style.top = i * C_HEIGHT + 'px'
+				container.appendChild(dom_elems[i][j])
+			}
+		}
+
+		
+		let snake = [[Math.floor(C_H_COUNT / 2), Math.floor(C_V_COUNT / 2)]]
+		snake.push([snake[0][0], snake[0][1] - 1])
+
+		let prev_direct = [0, 0]
+		let direct = [1, 0]
+		document.addEventListener('keydown', function(event){
+			switch(event.code){
+				case 'KeyW': direct = prev_direct[0] ==  1 && prev_direct[1] ==  0 ? direct : [-1,  0]; break;
+				case 'KeyS': direct = prev_direct[0] == -1 && prev_direct[1] ==  0 ? direct : [ 1,  0]; break;
+				case 'KeyA': direct = prev_direct[0] ==  0 && prev_direct[1] ==  1 ? direct : [ 0, -1]; break;
+				case 'KeyD': direct = prev_direct[0] ==  0 && prev_direct[1] == -1 ? direct : [ 0,  1]; break;
+			}
+		})
+
+		function generate_food(){
+			let food = [Math.floor(Math.random() * C_H_COUNT), Math.floor(Math.random() * C_V_COUNT)]
+			if(snake.find(e => 
+				e[0] == food[0] &&
+				e[1] == food[1] )
+			  )
+				return generate_food()
+			return food
+		}
+
+		let food = generate_food()
+		dom_elems[food[0]][food[1]].className = 'cell sn_food'
+
+		let time_speed = 100
+		let eat = false
+		setTimeout(function game_time(){
+			eat = false
+			if(snake.find(e => 
+				e[0] == snake[0][0] + direct[0] &&
+				e[1] == snake[0][1] + direct[1] )
+			  ) {
+				console.log('Game over!')
+			} else {
+
+				let new_position = [0, 0]
+				let buf = [0, 0]
+				new_position[0] = snake[0][0]; new_position[1] = snake[0][1];
+				dom_elems[new_position[0]][new_position[1]].className = 'cell'
+				snake[0][0] += direct[0]; snake[0][1] += direct[1];
+				if(snake[0][0] < 0)
+					snake[0][0] = C_H_COUNT - 1
+				if(snake[0][0] == C_H_COUNT)
+					snake[0][0] = 0
+				if(snake[0][1] < 0)
+					snake[0][1] = C_V_COUNT - 1
+				if(snake[0][1] == C_V_COUNT)
+					snake[0][1] = 0
+
+				if(snake[0][0] == food[0] && snake[0][1] == food[1]){
+					snake.push([snake[snake.length - 1][0], snake[snake.length - 1][1]])
+					eat = true
+				}
+
+				dom_elems[snake[0][0]][snake[0][1]].className = 'cell sn_head'
+
+				for(let i = 1; i < snake.length; i++){
+					buf[0] = snake[i][0]; buf[1] = snake[i][1]
+					dom_elems[buf[0]][buf[1]].className = 'cell'
+					snake[i][0] = new_position[0]; snake[i][1] = new_position[1]
+					dom_elems[new_position[0]][new_position[1]].className = 'cell sn_body'
+					new_position[0] = buf[0]; new_position[1] = buf[1]
+				}
+
+				if(eat){
+					food = generate_food()
+					console.log(food[0], food[1])
+					dom_elems[food[0]][food[1]].className = 'cell sn_food'	
+				}
+
+				prev_direct[0] = direct[0]; prev_direct[1] = direct[1]
+				setTimeout(game_time, time_speed)
+			}
+		}, time_speed)
+
+	</script>
+</body>
+</html>
