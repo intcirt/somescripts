@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Infinity Loop</title>
+
+
+	<style>
+		body{
+			background: rgb(5, 25, 30);
+		}
+		.cell{
+			position: absolute;
+			background-size: cover;
+			transition: .2s;
+		}
+		.container{
+			display: block;
+			margin: 30px auto;
+			position: relative;
+		}
+		.info{
+			margin-top: 20px;
+			text-align: center;
+			color: white;
+			font-family: Arial;
+			font-size: 50px;
+			opacity: 0;
+			transition: 2s;
+		}
+
+	</style>
+</head>
+<body>
+	<div class="info">Level completed, reload the page to start a new one</div>
+	<div class="container"></div>
+
+<!-- 	<svg version="1.1"
+     baseProfile="full"
+     width="125" height="125"
+     viewBox="0 0 500 500"
+     xmlns="http://www.w3.org/2000/svg">
+
+ 		<path d="M 250 500 A 250 250 0 0 0 0 250" stroke="white" fill="transparent" stroke-width="100"/>
+		<path d="M 250 500 A 250 250 0 0 0 0 250" stroke="black" fill="transparent" stroke-width="70"/>
+
+		<path d="M 0 250 A 250 250 0 0 0 250 0" stroke="white" fill="transparent" stroke-width="100"/>
+		<path d="M 0 250 A 250 250 0 0 0 250 0" stroke="black" fill="transparent" stroke-width="70"/>
+
+		<path d="M 250 0 A 250 250 0 0 0 500 250" stroke="white" fill="transparent" stroke-width="100"/>
+		<path d="M 250 0 A 250 250 0 0 0 500 250" stroke="black" fill="transparent" stroke-width="70"/>
+
+		<path d="M 500 250 A 250 250 0 0 0 250 500" stroke="white" fill="transparent" stroke-width="100"/>
+		<path d="M 500 250 A 250 250 0 0 0 250 500" stroke="black" fill="transparent" stroke-width="70"/>
+
+		<path d="M 250 500 A 250 250 0 0 0 176.8 323.2" stroke="white" fill="transparent" stroke-width="100"/>
+		<path d="M 250 500 A 250 250 0 0 0 176.8 323.2" stroke="black" fill="transparent" stroke-width="70"/>
+
+
+		</svg> -->
+
+
+<!--	<svg version="1.1"
+     baseProfile="full"
+     width="125" height="125"
+     viewBox="0 0 500 500"
+     xmlns="http://www.w3.org/2000/svg">
+
+ 		<path d="M 250 500 A 250 250 0 0 0 0 250" stroke="white" fill="transparent" stroke-width="100"/>
+		<path d="M 250 500 A 250 250 0 0 0 0 250" stroke="black" fill="transparent" stroke-width="70"/>
+
+		<path d="M 500 250 A 250 250 0 0 0 250 500" stroke="white" fill="transparent" stroke-width="100"/>
+		<path d="M 500 250 A 250 250 0 0 0 250 500" stroke="black" fill="transparent" stroke-width="70"/>
+
+		</svg -->
+
+
+<!-- 	<svg version="1.1"
+     baseProfile="full"
+     width="125" height="125"
+     viewBox="0 0 500 500"
+     xmlns="http://www.w3.org/2000/svg">
+
+     	<path d="M 250 500 A 250 250 0 0 0 0 250" stroke="white" fill="transparent" stroke-width="100"/>
+		<path d="M 250 500 A 250 250 0 0 0 0 250" stroke="black" fill="transparent" stroke-width="70"/>
+
+ 		</svg> -->
+
+
+<!--  	<svg version="1.1"
+     baseProfile="full"
+     width="125" height="125"
+     viewBox="0 0 500 500"
+     xmlns="http://www.w3.org/2000/svg">
+
+		<line x1="0" y1="250" x2="500" y2="250" stroke="white" fill="transparent" stroke-width="100"/>
+		<line x1="0" y1="250" x2="500" y2="250" stroke="black" fill="transparent" stroke-width="70"/>	
+
+		</svg> -->
+		
+
+<!-- 	<svg version="1.1"
+     baseProfile="full"
+     width="125" height="125"
+     viewBox="0 0 500 500"
+     xmlns="http://www.w3.org/2000/svg">
+
+     	<circle cx="250" cy="250" r="125" stroke="black" fill="transparent" stroke-width="70" />	
+     	<line x1="250" y1="375" x2="250" y2="500" stroke="black" fill="transparent" stroke-width="70"/>	
+
+		</svg> -->
+
+ 		<script> // global vars
+ 			
+ 			let theme = {
+				color: 'rgb(160, 225, 225)',
+				background: 'rgb(5, 25, 30)',
+			}
+
+			// grid sizes
+			let GRID_H_SIZE = 8, GRID_V_SIZE = 5
+
+			let cell_size = 100
+
+			let correct_cells = 0
+			let game_finished = false // if correct_cells == CRID_H_SIZE * GRID_V_SIZE then game_finished = true
+
+ 		</script>
+
+
+		<script> // svg painting
+			
+			let head = document.getElementsByTagName('head')[0]
+
+			let styles = document.createElement('style')
+
+			let css_inner = ''
+			let svg_part = ''
+			let path = []
+
+			// first element
+			
+			paths = [ 'M 250 500 A 250 250 0 0 0 0 250',  'M 0 250 A 250 250 0 0 0 250 0', 'M 250 0 A 250 250 0 0 0 500 250', 
+				'M 500 250 A 250 250 0 0 0 250 500']
+
+			for(part of paths)
+				svg_part += ('<path d="' + part + '" stroke="' + theme.background + '" fill="transparent" stroke-width="100"/>' +
+							  '<path d="' + part + '" stroke="' + theme.color      + '" fill="transparent" stroke-width="70"/>')
+
+			svg_part += ('<path d="M 250 500 A 250 250 0 0 0 180.0 326.0" stroke="' + theme.background + '" fill="transparent" stroke-width="100"/>' +
+						 '<path d="M 250 500 A 250 250 0 0 0 176.8 323.2" stroke="' + theme.color      + '" fill="transparent" stroke-width="70"/>')
+
+			svg_part = '<svg width="125" height="125" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">' +
+						svg_part + '</svg>'
+
+			css_inner += (".el4 { background-image: url('data:image/svg+xml;utf8," + svg_part + "');} ")
+
+			// second element
+
+			svg_part = ''
+
+			paths = ['M 250 500 A 250 250 0 0 0 0 250', 'M 500 250 A 250 250 0 0 0 250 500']
+
+			for(part of paths)
+				svg_part += ('<path d="' + part + '" stroke="' + theme.background + '" fill="transparent" stroke-width="100"/>' +
+							 '<path d="' + part + '" stroke="' + theme.color      + '" fill="transparent" stroke-width="70"/>')
+
+			svg_part = '<svg width="125" height="125" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">' +
+						svg_part + '</svg>'
+
+			css_inner += (".el3 { background-image: url('data:image/svg+xml;utf8," + svg_part + "');} ")
+
+			//third element 
+
+			svg_part = ''
+
+			svg_part = ('<path d="M 250 500 A 250 250 0 0 0 0 250" stroke="' + theme.background + '" fill="transparent" stroke-width="100"/>' + 
+						'<path d="M 250 500 A 250 250 0 0 0 0 250" stroke="' + theme.color      + '" fill="transparent" stroke-width="70"/>')
+
+			svg_part = '<svg width="125" height="125" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">' +
+						svg_part + '</svg>'
+
+			css_inner += (".el2c { background-image: url('data:image/svg+xml;utf8," + svg_part + "');} ")
+
+			//fourth element
+
+			svg_part = ''
+
+			svg_part = ('<line x1="0" y1="250" x2="500" y2="250" stroke="' + theme.background + '" fill="transparent" stroke-width="100"/>' + 
+						'<line x1="0" y1="250" x2="500" y2="250" stroke="' + theme.color      + '" fill="transparent" stroke-width="70"/>')
+
+			svg_part = '<svg width="125" height="125" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">' +
+						svg_part + '</svg>'
+
+			css_inner += (".el2l { background-image: url('data:image/svg+xml;utf8," + svg_part + "');} ")
+
+			//fifth element
+
+			svg_part = ''
+
+			svg_part = ('<circle cx="250" cy="250" r="125" stroke="' + theme.color + '" fill="transparent" stroke-width="70" />' + 
+     					'<line x1="250" y1="375" x2="250" y2="500" stroke="' + theme.color + '" fill="transparent" stroke-width="70"/>')
+
+			svg_part = '<svg width="125" height="125" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">' +
+						svg_part + '</svg>'
+
+			css_inner += (".el1 { background-image: url('data:image/svg+xml;utf8," + svg_part + "');} ")
+
+			//-------------------
+
+			//cell styles
+
+			css_inner = ('.cell { width: ' + cell_size + 'px; height: ' + cell_size + 'px;} ') + css_inner
+
+			// applying styles
+
+			styles.innerHTML = css_inner
+
+			head.appendChild(styles)
+
+		</script>
+
+		<script> // grid creating 
+
+			let container = document.getElementsByClassName('container')[0]
+
+			container.style.width = GRID_H_SIZE * cell_size + 'px'
+			container.style.height = GRID_V_SIZE * cell_size + 'px'
+
+			let cell_grid = [,]
+
+			let randomBool = () => (Math.random() > 0.3 ? 1 : 0)
+
+			// create correct grid
+			for(let i = 0; i < GRID_V_SIZE; i++){
+				cell_grid[i] = []
+				for(let j = 0; j < GRID_H_SIZE; j++)
+					cell_grid[i][j] = [randomBool(), randomBool(), randomBool(), randomBool()]
+			}
+
+			for(let i = 0; i < GRID_V_SIZE; i++)
+				for(let j = 0; j < GRID_H_SIZE; j++)
+					cell_grid[i][j] = [
+						cell_grid[i][j][0] & (i == 0 ? 0 : cell_grid[i - 1][j][2]),
+						cell_grid[i][j][1] & (j == GRID_H_SIZE - 1 ? 0 : cell_grid[i][j + 1][3]),
+						cell_grid[i][j][2] & (i == GRID_V_SIZE - 1 ? 0 : cell_grid[i + 1][j][0]),
+						cell_grid[i][j][3] & (j == 0 ? 0 : cell_grid[i][j - 1][1])
+					]
+				
+			// rotate element
+			let r_shift = (ar) => ar.unshift(ar.pop())
+
+			// rotate randomly every element 
+			cell_grid = cell_grid.map(row => row.map(el => {
+				let copy = [...el]
+				for(let i = 0; i < Math.floor(Math.random() * 4); i++)
+					r_shift(copy)
+				return [copy, 0, 0] // random version, is cell in correct position, angle (0, 90, 180 or 270 deg)
+			}))
+
+
+			// find "correct" cells in random position
+			let cor_count = 0
+			for(let i = 0; i < GRID_V_SIZE; i++)
+				for(let j = 0; j < GRID_H_SIZE; j++)
+					if (cell_grid[i][j][0][0] + cell_grid[i][j][0][1] + cell_grid[i][j][0][2] + cell_grid[i][j][0][3] == 0){
+
+						correct_cells++
+					} else {
+						cor_count = 0
+						if (i == 0) {cor_count++; if (cell_grid[i][j][0][2] == cell_grid[i + 1][j][0][0]) cor_count++}
+						else if (i == GRID_V_SIZE - 1) {cor_count++; if (cell_grid[i][j][0][0] == cell_grid[i - 1][j][0][2]) cor_count++}
+						else {
+							if (cell_grid[i][j][0][2] == cell_grid[i + 1][j][0][0]) cor_count++
+							if (cell_grid[i][j][0][0] == cell_grid[i - 1][j][0][2]) cor_count++
+						}
+
+						if (j == 0) {cor_count++; if (cell_grid[i][j][0][1] == cell_grid[i][j + 1][0][3]) cor_count++}
+						else if (j == GRID_H_SIZE - 1) {cor_count++; if (cell_grid[i][j][0][3] == cell_grid[i][j - 1][0][1]) cor_count++}
+						else {
+							if (cell_grid[i][j][0][1] == cell_grid[i][j + 1][0][3]) cor_count++
+							if (cell_grid[i][j][0][3] == cell_grid[i][j - 1][0][1]) cor_count++
+						}
+
+						if (cor_count == 4) {
+							cell_grid[i][j][1] = 1
+							correct_cells++
+						}
+					}
+
+
+
+			let check_cell_after_rot = function(i, j) {
+				if (cell_grid[i][j][0][0] + cell_grid[i][j][0][1] + cell_grid[i][j][0][2] + cell_grid[i][j][0][3] != 0) {
+					let cor_count = 0
+
+					if (i == 0) {cor_count++; if (cell_grid[i][j][0][2] == cell_grid[i + 1][j][0][0]) cor_count++}
+					else if (i == GRID_V_SIZE - 1) {cor_count++; if (cell_grid[i][j][0][0] == cell_grid[i - 1][j][0][2]) cor_count++}
+					else {
+						if (cell_grid[i][j][0][2] == cell_grid[i + 1][j][0][0]) cor_count++
+						if (cell_grid[i][j][0][0] == cell_grid[i - 1][j][0][2]) cor_count++
+					}
+
+					if (j == 0) {cor_count++; if (cell_grid[i][j][0][1] == cell_grid[i][j + 1][0][3]) cor_count++}
+					else if (j == GRID_H_SIZE - 1) {cor_count++; if (cell_grid[i][j][0][3] == cell_grid[i][j - 1][0][1]) cor_count++}
+					else {
+						if (cell_grid[i][j][0][1] == cell_grid[i][j + 1][0][3]) cor_count++
+						if (cell_grid[i][j][0][3] == cell_grid[i][j - 1][0][1]) cor_count++
+					}
+
+					if (cor_count == 4 && cell_grid[i][j][1] == 0) {
+						cell_grid[i][j][1] = 1
+						correct_cells++
+					}
+
+					if (cor_count < 4 && cell_grid[i][j][1] == 1) {
+						cell_grid[i][j][1] = 0
+						correct_cells--
+					}
+				}	
+			}
+
+			let count = 0
+			let dom_elem = null
+
+			// draw grid
+			for(let i = 0; i < GRID_V_SIZE; i++)
+				for(let j = 0; j < GRID_H_SIZE; j++){
+					dom_elem = document.createElement('div')
+					dom_elem.style.width = cell_size + 'px'
+					dom_elem.style.height = cell_size + 'px'
+					dom_elem.style.top = i * cell_size + 'px'
+					dom_elem.style.left = j * cell_size + 'px'
+					count = 0
+					cell_grid[i][j][0].map(el => count += el)
+					switch(count){
+						case 4: dom_elem.className = 'cell el4'; break
+						case 3: {
+							dom_elem.className = 'cell el3'
+							for(let k = 0; k < 4; k++)
+								if (cell_grid[i][j][0][k] == 0){
+									cell_grid[i][j][2] = k  
+									break
+								}
+							break
+						}
+						case 2: {
+							if (cell_grid[i][j][0][0] & cell_grid[i][j][0][2] == 1){
+								dom_elem.className = 'cell el2l'
+								cell_grid[i][j][2] = 1
+							}
+							else if (cell_grid[i][j][0][1] & cell_grid[i][j][0][3] == 1)
+								dom_elem.className = 'cell el2l'
+							else {
+								dom_elem.className = 'cell el2c'
+								if (cell_grid[i][j][0][0] & cell_grid[i][j][0][1]) cell_grid[i][j][2] = 2
+								else if (cell_grid[i][j][0][1] & cell_grid[i][j][0][2]) cell_grid[i][j][2] = 3
+								else if (cell_grid[i][j][0][3] & cell_grid[i][j][0][0]) cell_grid[i][j][2] = 1
+							}
+							break
+						}
+						case 1: {
+							dom_elem.className = 'cell el1'
+							for(let k = 0; k < 4; k++)
+								if (cell_grid[i][j][0][k] == 1){
+									cell_grid[i][j][2] = k  
+									break
+								}
+							cell_grid[i][j][2] -= 2
+							break
+						}
+						case 0: dom_elem.className = 'cell'
+					}
+					dom_elem.style.transform = 'rotateZ(' + (cell_grid[i][j][2] * 90) + 'deg)'
+
+
+					dom_elem.onclick = function () {
+						if (game_finished == false){
+							r_shift(cell_grid[i][j][0])
+							cell_grid[i][j][2]++
+							this.style.transform = 'rotateZ(' + (cell_grid[i][j][2] * 90) + 'deg)'
+	
+							// check 
+		
+							check_cell_after_rot (i, j)
+							if (i > 0) check_cell_after_rot (i - 1, j)
+							if (j > 0) check_cell_after_rot (i, j - 1)
+							if (i < GRID_V_SIZE - 1) check_cell_after_rot (i + 1, j) 
+							if (j < GRID_H_SIZE - 1) check_cell_after_rot (i, j + 1)
+
+							if (correct_cells == GRID_V_SIZE * GRID_H_SIZE) {
+								game_finished = true
+								document.getElementsByClassName('info')[0].style.opacity = 1
+							}
+
+						}
+
+					}
+					container.appendChild(dom_elem)
+					console.log(1)
+				}
+
+		</script>
+
+			
+</body>
+</html>
